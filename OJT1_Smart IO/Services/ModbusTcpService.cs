@@ -1,26 +1,53 @@
 ﻿using System;
 using System.Net.Sockets;
+using DevExpress.CodeParser;
 using NModbus;
+using NModbus.Device;
 
 namespace OJT1_Smart_IO.Services
 {
-    public class ModbusTcpService : IDisposable
+    public class ModbusTcpService
     {
         private TcpClient _client;
         private IModbusMaster _master;
+        public int TimeoutMs { get; set; } = 2000;
+        public bool IsConnected => _client != null && _client.Connected && _master != null;
 
-        public bool IsConnected => _client != null && _client.Connected;
 
-        public void Connect(string ip, int port = 1502)
+        public void Connect(string ip, int port)
         {
             Disconnect();
 
             _client = new TcpClient();
-            _client.Connect(ip, port);
+
+            // ✅ timeout 적용되는 connect
+            IAsyncResult ar = _client.BeginConnect(ip, port, null, null);
+            if (!ar.AsyncWaitHandle.WaitOne(TimeoutMs))
+            {
+                try { _client.Close(); } catch { }
+                _client = null;
+                _master = null;
+                throw new TimeoutException($"Connection timeout({TimeoutMs}ms)");
+            }
+
+            _client.EndConnect(ar);
+
+            // ✅ send/recv timeout
+            _client.ReceiveTimeout = TimeoutMs;
+            _client.SendTimeout = TimeoutMs;
+
+            try
+            {
+                var stream = _client.GetStream();
+                stream.ReadTimeout = TimeoutMs;
+                stream.WriteTimeout = TimeoutMs;
+            }
+            catch { }
 
             var factory = new ModbusFactory();
             _master = factory.CreateMaster(_client);
         }
+
 
         public void Disconnect()
         {
@@ -29,43 +56,22 @@ namespace OJT1_Smart_IO.Services
             _master = null;
         }
 
-        private void EnsureConnected()
+        public bool[] ReadCoils(byte unitId, ushort startAddress, ushort numberOfPoints)
         {
-            if (!IsConnected || _master == null)
-                throw new InvalidOperationException("Modbus not connected.");
+            if (!IsConnected) throw new InvalidOperationException("Not connected.");
+            return _master.ReadCoils(unitId, startAddress, numberOfPoints);
         }
 
-        // Discrete Inputs (Input Discretes)
-        public bool[] ReadDiscreteInputs(byte slaveId, ushort startAddress, ushort count)
+        public bool[] ReadDiscreteInputs(byte unitId, ushort startAddress, ushort numberOfPoints)
         {
-            EnsureConnected();
-            return _master.ReadInputs(slaveId, startAddress, count);
+            if (!IsConnected) throw new InvalidOperationException("Not connected.");
+            return _master.ReadInputs(unitId, startAddress, numberOfPoints);
         }
 
-        // Holding Registers
-        public ushort[] ReadHoldingRegisters(byte slaveId, ushort startAddress, ushort count)
+        public void WriteSingleCoil(byte unitId, ushort coilAddress, bool value)
         {
-            EnsureConnected();
-            return _master.ReadHoldingRegisters(slaveId, startAddress, count);
-        }
-
-        // Coils (Read)
-        public bool[] ReadCoils(byte slaveId, ushort startAddress, ushort count)
-        {
-            EnsureConnected();
-            return _master.ReadCoils(slaveId, startAddress, count);
-        }
-
-        // Coils (Write)
-        public void WriteSingleCoil(byte slaveId, ushort address, bool value)
-        {
-            EnsureConnected();
-            _master.WriteSingleCoil(slaveId, address, value);
-        }
-
-        public void Dispose()
-        {
-            Disconnect();
+            if (!IsConnected) throw new InvalidOperationException("Not connected.");
+            _master.WriteSingleCoil(unitId, coilAddress, value);
         }
     }
 }
