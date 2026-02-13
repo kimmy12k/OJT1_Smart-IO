@@ -32,7 +32,7 @@ namespace OJT1_Smart_IO.Managers
                 throw new InvalidOperationException($"모듈은 최대 {MaxModules}개까지 추가할 수 있습니다.");
             var module = new IOModule
             {
-                SlotIndex = Modules.Count,
+                SlotIndex = Modules.Count, // 변경 ㄴㄴ
                 Type = type,
                 Channels = new List<IOChannel>()
             };
@@ -47,7 +47,7 @@ namespace OJT1_Smart_IO.Managers
                 throw new InvalidOperationException($"모듈은 최대 {MaxModules}개까지 추가할 수 있습니다.");
             var module = new IOModule
             {
-                SlotIndex = Modules.Count,
+                SlotIndex = Modules.Count,// 변경 ㄴㄴ
                 DIIndex = DI,
                 DOIndex = DO,
                 Type = ModuleType.DO,
@@ -84,9 +84,9 @@ namespace OJT1_Smart_IO.Managers
                 }
             }
         }
-        private ushort MapDoAddress(int slotIndex, int channelIndex)
+        private ushort MapDoAddress(int Index, int channelIndex)
         {
-            return (ushort)(DoBaseAddress + (slotIndex * ChannelsPerModule) + channelIndex);
+            return (ushort)(DoBaseAddress + (Index * ChannelsPerModule) + channelIndex);// slotindex 변경 ㄴㄴ ChannelsPerModul 변경
         }
 
 
@@ -100,7 +100,7 @@ namespace OJT1_Smart_IO.Managers
 
             try
             {
-                ushort addr = MapDoAddress(Index, channelIndex);// slotIndex-> DOaddress
+                ushort addr = MapDoAddress(Index, channelIndex);
 
                 // ✅ 네트워크(실장치) 값 변경
                 _modbus.WriteSingleCoil(SlaveId, addr, value);

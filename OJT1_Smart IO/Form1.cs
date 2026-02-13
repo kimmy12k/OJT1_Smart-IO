@@ -39,6 +39,8 @@ namespace OJT1_Smart_IO
         private bool _m = false;
         private int _DI = 0;
         private int _DO = 0;
+        private int DIStart = -1;
+        private int DIEnd = -1;
 
         public Form1()
         {
@@ -228,6 +230,7 @@ namespace OJT1_Smart_IO
         {
             try
             {
+
                 _disconnectNotified = false;
 
                 string ip = txtIp.Text.Trim();
@@ -236,12 +239,15 @@ namespace OJT1_Smart_IO
                     MessageBox.Show("IP를 입력하세요.");
                     return;
                 }
-
+                // DI 주소 정해주는 곳
                 _modbus.TimeoutMs = (int)TcpEditTime.Value;     // 통신 타임아웃
                 _smart.PollIntervalMs = (int)spinPollMs.Value;  // 폴링 주기
-                _smart.DiStart = 0;
-                _smart.DiCount = 16;
-
+                _smart.DiStart = 0; // 항상 첫번째 
+                _smart.DiCount = (ushort)(_DI * ModuleManager.ChannelsPerModule); // 바꾸기
+                if (_DI > 0)
+                {
+                    _smart.EnableDIPolling = true;
+                }
                 _smart.Disconnect();
                 _smart.Connect(ip, DefaultPort, DefaultUnitId);
             }
@@ -303,7 +309,7 @@ namespace OJT1_Smart_IO
             if (ch == null) return;
             bool newValue = Convert.ToBoolean(e.Value);
             //if(module.DOIndex==0)module.DOIndex = 1;// DO 모듈이 하나도 없을 경우
-            bool ok = _moduleManager.SetOutput(module.SlotIndex, ch.ChannelIndex, newValue);// SlotIndex -> DOIndex -1
+            bool ok = _moduleManager.SetOutput(module.SlotIndex, ch.ChannelIndex, newValue);// DO부분 SlotIndex -> DOIndex -1
             if (!ok)
             {
                 channels.RefreshRow(e.RowHandle);
@@ -337,9 +343,9 @@ namespace OJT1_Smart_IO
                     DOIndex = _DO,
                     Channels = new System.Collections.Generic.List<IOChannel>()
                 };
-                for (int i = 0; i < ModuleManager.ChannelsPerModule; i++)
+                for (int i = 0; i < ModuleManager.ChannelsPerModule; i++)// 나중에  채널 수 변경
                 {
-                    m.Channels.Add(new IOChannel { ChannelIndex = i, DisplayIndex = i + 1, Value = false });// DI,Do 나누어 주기
+                    m.Channels.Add(new IOChannel { ChannelIndex = i, DisplayIndex = i + 1, Value = false });// DI,DO 나누어 주기
                 }
 
                 _uiModulesBinding.Add(m);
@@ -365,7 +371,9 @@ namespace OJT1_Smart_IO
 
             int idx = modules.FocusedRowHandle;
             if (idx < 0 || idx >= _uiModulesBinding.Count) return;
-
+            var module = GetSelectedModule();
+            if (module.Type == ModuleType.DO) _DO--;
+            else _DI--;
             _uiModulesBinding.RemoveAt(idx);
 
             RecalcUiIndexes();
@@ -389,7 +397,6 @@ namespace OJT1_Smart_IO
             var item = _uiModulesBinding[from];
             _uiModulesBinding.RemoveAt(from);
             _uiModulesBinding.Insert(from - 1, item);
-
             RecalcUiIndexes();
             modules.RefreshData();
             modules.FocusedRowHandle = from - 1;
@@ -421,7 +428,7 @@ namespace OJT1_Smart_IO
             for (int s = 0; s < _uiModulesBinding.Count; s++)
             {
                 var m = _uiModulesBinding[s];
-                m.SlotIndex = s;
+                m.SlotIndex = s;// 변경 ㄴㄴ
 
                 for (int ch = 0; ch < m.Channels.Count; ch++)
                 {
@@ -455,7 +462,16 @@ namespace OJT1_Smart_IO
 
             foreach (var ui in _uiModulesBinding)
             {
-                _moduleManager.AddModule(ui.Type);
+                _moduleManager.AddModule(ui.Type);// Di,DO
+                DIEnd = ui.SlotIndex;
+            }
+            foreach(var module in _uiModulesBinding)
+            {
+                if (module.Type == ModuleType.DI)
+                {
+                    DIStart = module.SlotIndex;
+                    break;
+                }
             }
             modules.RefreshData();
             modules.FocusedRowHandle = _moduleManager.Modules.Count > 0 ? 0 : -1;
@@ -497,19 +513,45 @@ namespace OJT1_Smart_IO
         // ---------------------------
         // ✅ DI 값이 들어오면, 선택된 DI 모듈에만 반영
         // ---------------------------
-        private void ApplyDIToSelectedModule(bool[] di)// 모르겠음 차장님께 물어보자 -> 시작부터 
+
+
+        private void ApplyDIToSelectedModule(bool[] diAll)
         {
-            var module = GetSelectedModule();
-            if (module == null) return;
+            if (diAll == null || diAll.Length == 0) return;
 
-            if (module.Type != ModuleType.DI) return;
+           var list = _moduleManager.Modules;
+                
+            foreach (var m in list)
+            {
+                if (m == null) continue;
+                if (m.Type != ModuleType.DI) continue;
+                if (m.Channels == null || m.Channels.Count == 0) continue;
 
-            int n = Math.Min(di.Length, module.Channels.Count);
-            for (int i = 0; i < n; i++)
-                module.Channels[i].Value = di[i];
+                // DIIndex가 1부터 시작한다고 가정 (1,2,3...)
+                int diIndex = m.DIIndex - 1;
+                if (diIndex < 0) continue;
 
+
+                int baseOffset = diIndex * 16; // 전 DI의 채널스 값
+                if (baseOffset >= diAll.Length) continue;// 확인차
+
+                int n = Math.Min(16, diAll.Length - baseOffset);
+                if (m.Channels == null || m.Channels.Count == 0) continue;// 확인
+
+                // m.Channels 개수는 16개라고 가정하지만, 혹시 다르면 Min 처리
+                n = Math.Min(n, m.Channels.Count);
+
+                for (int i = 0; i < n; i++)
+                {
+                    m.Channels[i].Value = diAll[baseOffset + i];
+                }
+            }
+
+            // 현재 화면에 보이는 오른쪽 채널 그리드 갱신
             channels.RefreshData();
         }
+
+
 
         // ---------------------------
         // Drag & Drop (Apply 전 UI 순서만 변경)
@@ -597,7 +639,7 @@ namespace OJT1_Smart_IO
             modules.OptionsBehavior.ReadOnly = true;
 
             // ✅ 특정 컬럼만 확실히 잠금 (SlotIndex, Type)
-            var colSlot = modules.Columns.ColumnByFieldName("SlotIndex");
+            var colSlot = modules.Columns.ColumnByFieldName("SlotIndex"); // 변경 ㄴㄴ
             if (colSlot != null)
             {
                 colSlot.OptionsColumn.AllowEdit = false;

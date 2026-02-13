@@ -104,9 +104,9 @@
             layoutControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             layoutControl1.Location = new System.Drawing.Point(0, 0);
             layoutControl1.Name = "layoutControl1";
-            layoutControl1.OptionsCustomizationForm.DesignTimeCustomizationFormPositionAndSize = new System.Drawing.Rectangle(879, 183, 650, 400);
+            layoutControl1.OptionsCustomizationForm.DesignTimeCustomizationFormPositionAndSize = new System.Drawing.Rectangle(857, 169, 650, 400);
             layoutControl1.Root = Root;
-            layoutControl1.Size = new System.Drawing.Size(938, 441);
+            layoutControl1.Size = new System.Drawing.Size(926, 441);
             layoutControl1.TabIndex = 14;
             layoutControl1.Text = "layoutControl1";
             // 
@@ -115,12 +115,12 @@
             gridChannels.EmbeddedNavigator.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             gridLevelNode1.RelationName = "Level1";
             gridChannels.LevelTree.Nodes.AddRange(new DevExpress.XtraGrid.GridLevelNode[] { gridLevelNode1 });
-            gridChannels.Location = new System.Drawing.Point(471, 222);
+            gridChannels.Location = new System.Drawing.Point(466, 222);
             gridChannels.MainView = channels;
             gridChannels.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             gridChannels.Name = "gridChannels";
             gridChannels.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] { repositoryItemCheckEdit1 });
-            gridChannels.Size = new System.Drawing.Size(455, 137);
+            gridChannels.Size = new System.Drawing.Size(450, 190);
             gridChannels.TabIndex = 17;
             gridChannels.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { channels });
             // 
@@ -175,7 +175,7 @@
             panelControl1.Controls.Add(cmbModuleType);
             panelControl1.Location = new System.Drawing.Point(12, 122);
             panelControl1.Name = "panelControl1";
-            panelControl1.Size = new System.Drawing.Size(914, 96);
+            panelControl1.Size = new System.Drawing.Size(904, 96);
             panelControl1.TabIndex = 18;
             // 
             // btnApplyConfig
@@ -305,7 +305,7 @@
             gridModules.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             gridModules.MinimumSize = new System.Drawing.Size(450, 120);
             gridModules.Name = "gridModules";
-            gridModules.Size = new System.Drawing.Size(455, 137);
+            gridModules.Size = new System.Drawing.Size(450, 190);
             gridModules.TabIndex = 17;
             gridModules.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { modules, gridView3 });
             gridModules.DragDrop += gridModules_DragDrop;
@@ -361,7 +361,7 @@
             pnlconn.Location = new System.Drawing.Point(12, 12);
             pnlconn.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             pnlconn.Name = "pnlconn";
-            pnlconn.Size = new System.Drawing.Size(914, 106);
+            pnlconn.Size = new System.Drawing.Size(904, 106);
             pnlconn.TabIndex = 17;
             // 
             // labelControl1
@@ -450,7 +450,7 @@
             rowDefinition4.Height = 70D;
             rowDefinition4.SizeType = System.Windows.Forms.SizeType.Absolute;
             Root.OptionsTableLayoutGroup.RowDefinitions.AddRange(new DevExpress.XtraLayout.RowDefinition[] { rowDefinition1, rowDefinition2, rowDefinition3, rowDefinition4 });
-            Root.Size = new System.Drawing.Size(938, 441);
+            Root.Size = new System.Drawing.Size(928, 424);
             Root.TextVisible = false;
             // 
             // layoutControlItem2
@@ -459,7 +459,7 @@
             layoutControlItem2.Location = new System.Drawing.Point(0, 0);
             layoutControlItem2.Name = "layoutControlItem2";
             layoutControlItem2.OptionsTableLayoutItem.ColumnSpan = 2;
-            layoutControlItem2.Size = new System.Drawing.Size(918, 110);
+            layoutControlItem2.Size = new System.Drawing.Size(908, 110);
             layoutControlItem2.TextVisible = false;
             // 
             // layoutControlItem1
@@ -469,7 +469,8 @@
             layoutControlItem1.MinSize = new System.Drawing.Size(454, 124);
             layoutControlItem1.Name = "layoutControlItem1";
             layoutControlItem1.OptionsTableLayoutItem.RowIndex = 2;
-            layoutControlItem1.Size = new System.Drawing.Size(459, 141);
+            layoutControlItem1.OptionsTableLayoutItem.RowSpan = 2;
+            layoutControlItem1.Size = new System.Drawing.Size(454, 194);
             layoutControlItem1.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom;
             layoutControlItem1.TextLocation = DevExpress.Utils.Locations.Bottom;
             layoutControlItem1.TextVisible = false;
@@ -481,27 +482,28 @@
             layoutControlItem3.Name = "layoutControlItem3";
             layoutControlItem3.OptionsTableLayoutItem.ColumnSpan = 2;
             layoutControlItem3.OptionsTableLayoutItem.RowIndex = 1;
-            layoutControlItem3.Size = new System.Drawing.Size(918, 100);
+            layoutControlItem3.Size = new System.Drawing.Size(908, 100);
             layoutControlItem3.TextVisible = false;
             // 
             // layoutControlItem4
             // 
             layoutControlItem4.Control = gridChannels;
-            layoutControlItem4.Location = new System.Drawing.Point(459, 210);
+            layoutControlItem4.Location = new System.Drawing.Point(454, 210);
             layoutControlItem4.Name = "layoutControlItem4";
             layoutControlItem4.OptionsTableLayoutItem.ColumnIndex = 1;
             layoutControlItem4.OptionsTableLayoutItem.RowIndex = 2;
-            layoutControlItem4.Size = new System.Drawing.Size(459, 141);
+            layoutControlItem4.OptionsTableLayoutItem.RowSpan = 2;
+            layoutControlItem4.Size = new System.Drawing.Size(454, 194);
             layoutControlItem4.TextVisible = false;
             // 
             // Form1
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(938, 441);
+            ClientSize = new System.Drawing.Size(926, 441);
             Controls.Add(layoutControl1);
             Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            MinimumSize = new System.Drawing.Size(700, 400);
+            MinimumSize = new System.Drawing.Size(548, 398);
             Name = "Form1";
             StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             Text = "Form1";

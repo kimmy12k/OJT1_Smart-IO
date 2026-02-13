@@ -22,10 +22,7 @@ namespace OJT1_Smart_IO.Services
         }
         // true: Fake / false: Real Modbus
         public bool TestMode { get; set; } = false;// true면 FakeDI, FakeAI로 값 생성 -> 시험모드  false면 _modbus.ReadCoils, _modbus.ReadHoldingRegisters을 통해 실제 값 읽음
-        /// <summary>
-        /// DI를 어디서부터 몇 개 읽을지 결정
-        ///_modbus.ReadCoils(unitId, DiStart, DiCount) 에 그대로 들어감
-        /// </summary>
+      
         public ushort DiStart { get; set; } = 0;
         public ushort DiCount { get; set; } = 16;
         public int PollIntervalMs { get; set; } = 500;//몇 ms마다 읽을지,Task.Delay(PollIntervalMs, token)에 들어가 반복주기 결정,Form1의 spinPollMs가 여기에 반영됨.
@@ -93,6 +90,7 @@ namespace OJT1_Smart_IO.Services
                         await Task.Delay(PollIntervalMs, token);
                         continue;
                     }
+
                     if (TestMode)//실제 통신 없이 랜덤 값 생성,생성된 값이 바로 이벤트로 UI에 전달됨
                     {
                         DIUpdated?.Invoke(FakeDI((int)DiCount));
