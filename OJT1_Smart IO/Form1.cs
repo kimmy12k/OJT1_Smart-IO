@@ -515,6 +515,7 @@ namespace OJT1_Smart_IO
 
         private void ApplyDIToSelectedModule(bool[] diAll)
         {
+            int cnt = 0;
             if (diAll == null || diAll.Length == 0) return;
 
            var list = _moduleManager.Modules;
@@ -543,7 +544,10 @@ namespace OJT1_Smart_IO
                 //{
                 //    m.Channels[i].Value = diAll[baseOffset + i];
                 //}
-            
+                for (int i = 0; i < m.Channels.Count; i++)
+                {
+                    m.Channels[i].Value = diAll[cnt++];
+                }
             }
 
             // 현재 화면에 보이는 오른쪽 채널 그리드 갱신
