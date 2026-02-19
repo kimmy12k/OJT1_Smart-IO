@@ -94,7 +94,6 @@ namespace OJT1_Smart_IO.Services
                     if (TestMode)//실제 통신 없이 랜덤 값 생성,생성된 값이 바로 이벤트로 UI에 전달됨
                     {
                         DIUpdated?.Invoke(FakeDI((int)DiCount));
-                        //AIUpdated?.Invoke(FakeAI((int)AiCount));
                     }
                     else
                     {
@@ -128,13 +127,7 @@ namespace OJT1_Smart_IO.Services
                 arr[i] = _rand.Next(0, 2) == 1;
             return arr;
         }
-        private ushort[] FakeAI(int count)
-        {
-            var arr = new ushort[count];
-            for (int i = 0; i < count; i++)
-                arr[i] = (ushort)_rand.Next(0, 4000);
-            return arr;
-        }
+
 
 
     }

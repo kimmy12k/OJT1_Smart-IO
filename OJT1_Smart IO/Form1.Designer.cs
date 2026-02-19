@@ -42,6 +42,9 @@
             Value = new DevExpress.XtraGrid.Columns.GridColumn();
             repositoryItemCheckEdit1 = new DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit();
             panelControl1 = new DevExpress.XtraEditors.PanelControl();
+            cmbModuleType = new DevExpress.XtraEditors.ComboBoxEdit();
+            cmbChannelsCount = new DevExpress.XtraEditors.ComboBoxEdit();
+            labelControl2 = new DevExpress.XtraEditors.LabelControl();
             btnApplyConfig = new DevExpress.XtraEditors.SimpleButton();
             lblMode = new DevExpress.XtraEditors.HyperlinkLabelControl();
             btnAddModule = new DevExpress.XtraEditors.SimpleButton();
@@ -53,7 +56,6 @@
             ModuleLabel = new DevExpress.XtraEditors.LabelControl();
             spinPollMs = new DevExpress.XtraEditors.SpinEdit();
             ModulesLabel = new DevExpress.XtraEditors.LabelControl();
-            cmbModuleType = new DevExpress.XtraEditors.ComboBoxEdit();
             gridModules = new DevExpress.XtraGrid.GridControl();
             modules = new DevExpress.XtraGrid.Views.Grid.GridView();
             Index = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -79,8 +81,9 @@
             ((System.ComponentModel.ISupportInitialize)repositoryItemCheckEdit1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)panelControl1).BeginInit();
             panelControl1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)spinPollMs.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)cmbModuleType.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)cmbChannelsCount.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)spinPollMs.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)gridModules).BeginInit();
             ((System.ComponentModel.ISupportInitialize)modules).BeginInit();
             ((System.ComponentModel.ISupportInitialize)gridView3).BeginInit();
@@ -161,6 +164,9 @@
             // 
             // panelControl1
             // 
+            panelControl1.Controls.Add(cmbModuleType);
+            panelControl1.Controls.Add(cmbChannelsCount);
+            panelControl1.Controls.Add(labelControl2);
             panelControl1.Controls.Add(btnApplyConfig);
             panelControl1.Controls.Add(lblMode);
             panelControl1.Controls.Add(btnAddModule);
@@ -172,15 +178,45 @@
             panelControl1.Controls.Add(ModuleLabel);
             panelControl1.Controls.Add(spinPollMs);
             panelControl1.Controls.Add(ModulesLabel);
-            panelControl1.Controls.Add(cmbModuleType);
             panelControl1.Location = new System.Drawing.Point(12, 122);
             panelControl1.Name = "panelControl1";
             panelControl1.Size = new System.Drawing.Size(904, 96);
             panelControl1.TabIndex = 18;
             // 
+            // cmbModuleType
+            // 
+            cmbModuleType.Location = new System.Drawing.Point(21, 22);
+            cmbModuleType.Margin = new System.Windows.Forms.Padding(2);
+            cmbModuleType.Name = "cmbModuleType";
+            cmbModuleType.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            cmbModuleType.Properties.Items.AddRange(new object[] { "DI", "DO" });
+            cmbModuleType.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
+            cmbModuleType.Size = new System.Drawing.Size(144, 20);
+            cmbModuleType.TabIndex = 23;
+            // 
+            // cmbChannelsCount
+            // 
+            cmbChannelsCount.Location = new System.Drawing.Point(21, 72);
+            cmbChannelsCount.Margin = new System.Windows.Forms.Padding(2);
+            cmbChannelsCount.Name = "cmbChannelsCount";
+            cmbChannelsCount.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            cmbChannelsCount.Properties.Items.AddRange(new object[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16" });
+            cmbChannelsCount.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
+            cmbChannelsCount.Size = new System.Drawing.Size(144, 20);
+            cmbChannelsCount.TabIndex = 22;
+            // 
+            // labelControl2
+            // 
+            labelControl2.Location = new System.Drawing.Point(46, 52);
+            labelControl2.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            labelControl2.Name = "labelControl2";
+            labelControl2.Size = new System.Drawing.Size(85, 14);
+            labelControl2.TabIndex = 21;
+            labelControl2.Text = "Channels Count";
+            // 
             // btnApplyConfig
             // 
-            btnApplyConfig.Location = new System.Drawing.Point(604, 11);
+            btnApplyConfig.Location = new System.Drawing.Point(603, 25);
             btnApplyConfig.Name = "btnApplyConfig";
             btnApplyConfig.Size = new System.Drawing.Size(113, 28);
             btnApplyConfig.TabIndex = 14;
@@ -222,7 +258,7 @@
             // 
             // ms
             // 
-            ms.Location = new System.Drawing.Point(468, 2);
+            ms.Location = new System.Drawing.Point(469, 14);
             ms.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             ms.Name = "ms";
             ms.Size = new System.Drawing.Size(95, 14);
@@ -231,7 +267,7 @@
             // 
             // btnUp
             // 
-            btnUp.Location = new System.Drawing.Point(178, 54);
+            btnUp.Location = new System.Drawing.Point(178, 63);
             btnUp.Margin = new System.Windows.Forms.Padding(2);
             btnUp.Name = "btnUp";
             btnUp.Size = new System.Drawing.Size(113, 28);
@@ -241,7 +277,7 @@
             // 
             // btnDown
             // 
-            btnDown.Location = new System.Drawing.Point(307, 54);
+            btnDown.Location = new System.Drawing.Point(307, 63);
             btnDown.Margin = new System.Windows.Forms.Padding(2);
             btnDown.Name = "btnDown";
             btnDown.Size = new System.Drawing.Size(113, 28);
@@ -260,7 +296,7 @@
             // 
             // ModuleLabel
             // 
-            ModuleLabel.Location = new System.Drawing.Point(46, 18);
+            ModuleLabel.Location = new System.Drawing.Point(46, 2);
             ModuleLabel.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             ModuleLabel.Name = "ModuleLabel";
             ModuleLabel.Size = new System.Drawing.Size(71, 14);
@@ -270,7 +306,7 @@
             // spinPollMs
             // 
             spinPollMs.EditValue = new decimal(new int[] { 0, 0, 0, 0 });
-            spinPollMs.Location = new System.Drawing.Point(451, 19);
+            spinPollMs.Location = new System.Drawing.Point(451, 33);
             spinPollMs.Margin = new System.Windows.Forms.Padding(2);
             spinPollMs.Name = "spinPollMs";
             spinPollMs.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
@@ -285,17 +321,6 @@
             ModulesLabel.Size = new System.Drawing.Size(48, 14);
             ModulesLabel.TabIndex = 13;
             ModulesLabel.Text = "Moudles ";
-            // 
-            // cmbModuleType
-            // 
-            cmbModuleType.Location = new System.Drawing.Point(21, 37);
-            cmbModuleType.Margin = new System.Windows.Forms.Padding(2);
-            cmbModuleType.Name = "cmbModuleType";
-            cmbModuleType.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
-            cmbModuleType.Properties.Items.AddRange(new object[] { "DI", "DO" });
-            cmbModuleType.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
-            cmbModuleType.Size = new System.Drawing.Size(144, 20);
-            cmbModuleType.TabIndex = 10;
             // 
             // gridModules
             // 
@@ -516,8 +541,9 @@
             ((System.ComponentModel.ISupportInitialize)panelControl1).EndInit();
             panelControl1.ResumeLayout(false);
             panelControl1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)spinPollMs.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)cmbModuleType.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)cmbChannelsCount.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)spinPollMs.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)gridModules).EndInit();
             ((System.ComponentModel.ISupportInitialize)modules).EndInit();
             ((System.ComponentModel.ISupportInitialize)gridView3).EndInit();
@@ -543,7 +569,6 @@
         private DevExpress.XtraEditors.LabelControl ms;
         private DevExpress.XtraEditors.SimpleButton btnDisconnect;
         private DevExpress.XtraEditors.SimpleButton btnConnect;
-        private DevExpress.XtraEditors.ComboBoxEdit cmbModuleType;
         private DevExpress.XtraEditors.LabelControl lblConn;
         private DevExpress.XtraEditors.SpinEdit spinPollMs;
         private DevExpress.XtraLayout.LayoutControlItem layoutControlItem2;
@@ -572,6 +597,9 @@
         private DevExpress.XtraEditors.SimpleButton btnApplyConfig;
         private DevExpress.XtraGrid.Columns.GridColumn Index;
         private DevExpress.XtraGrid.Columns.GridColumn Type;
+        private DevExpress.XtraEditors.LabelControl labelControl2;
+        private DevExpress.XtraEditors.ComboBoxEdit cmbChannelsCount;
+        private DevExpress.XtraEditors.ComboBoxEdit cmbModuleType;
     }
 }
 

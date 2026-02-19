@@ -41,7 +41,7 @@ namespace OJT1_Smart_IO.Managers
             RecalcDisplayIndexes();
             return module;
         }
-        public IOModule AddModule(int DI, int DO)
+        public IOModule AddModule(int DI, int DO, ModuleType type)
         {
             if (Modules.Count >= MaxModules)
                 throw new InvalidOperationException($"모듈은 최대 {MaxModules}개까지 추가할 수 있습니다.");
@@ -50,7 +50,7 @@ namespace OJT1_Smart_IO.Managers
                 SlotIndex = Modules.Count,// 변경 ㄴㄴ
                 DIIndex = DI,
                 DOIndex = DO,
-                Type = ModuleType.DO,
+                Type = type,
                 Channels = new List<IOChannel>()
             };
             EnsureChannels(module);// chennnels 생성

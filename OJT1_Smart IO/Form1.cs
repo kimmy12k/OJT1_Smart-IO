@@ -37,10 +37,10 @@ namespace OJT1_Smart_IO
         private bool _isDragging = false;
 
         private bool _m = false;
-        private int _DI = 0;
-        private int _DO = 0;
-        private int DIStart = -1;
-        private int DIEnd = -1;
+        private int _DI = -1;
+        private int _DO = 1;
+        private int _DITotalChannels = 0;
+        private int _DOTotoalChannels = 0;
 
         public Form1()
         {
@@ -243,7 +243,7 @@ namespace OJT1_Smart_IO
                 _modbus.TimeoutMs = (int)TcpEditTime.Value;     // 통신 타임아웃
                 _smart.PollIntervalMs = (int)spinPollMs.Value;  // 폴링 주기
                 _smart.DiStart = 0; // 항상 첫번째 
-                _smart.DiCount = (ushort)(_DI * ModuleManager.ChannelsPerModule); // 바꾸기
+                _smart.DiCount = (ushort)(_DOTotoalChannels); // DI 읽기 주소 -> DiChannels
                 if (_DI > 0)
                 {
                     _smart.EnableDIPolling = true;
@@ -304,7 +304,7 @@ namespace OJT1_Smart_IO
                 channels.RefreshRow(e.RowHandle);
                 return;
             }
-            // ✅ RowHandle을 인덱스로 쓰지 말고 실제 Row 객체로 가져오기
+            //  RowHandle을 인덱스로 쓰지 말고 실제 Row 객체로 가져오기
             var ch = channels.GetRow(e.RowHandle) as IOChannel;
             if (ch == null) return;
             bool newValue = Convert.ToBoolean(e.Value);
@@ -334,8 +334,17 @@ namespace OJT1_Smart_IO
             {
                 if (_configLocked) return; // 운전모드면 추가 금지
                 var type = (ModuleType)cmbModuleType.SelectedIndex; // DI=0, DO=1 
-                if (type == ModuleType.DI) _DI++;
-                else _DO++;
+                int channelsCount = cmbChannelsCount.SelectedIndex+1;
+                if (type == ModuleType.DI)
+                {
+                    _DI++;
+                    _DITotalChannels += channelsCount;
+                }
+                else
+                {
+                   _DO++;
+                    _DOTotoalChannels += channelsCount;
+                }
                 var m = new IOModule
                 {
                     Type = type,
@@ -343,16 +352,11 @@ namespace OJT1_Smart_IO
                     DOIndex = _DO,
                     Channels = new System.Collections.Generic.List<IOChannel>()
                 };
-                for (int i = 0; i < ModuleManager.ChannelsPerModule; i++)// 나중에  채널 수 변경
-                {
-                    m.Channels.Add(new IOChannel { ChannelIndex = i, DisplayIndex = i + 1, Value = false });// DI,DO 나누어 주기
-                }
-
+               
+               addChannels(m, channelsCount);
                 _uiModulesBinding.Add(m);
-
                 // 슬롯/표시 인덱스 재계산(중요)
                 RecalcUiIndexes();
-
                 modules.RefreshData();
                 modules.FocusedRowHandle = _uiModulesBinding.Count - 1;
 
@@ -425,6 +429,7 @@ namespace OJT1_Smart_IO
         // ---------------------------
         private void RecalcUiIndexes() // slotIdex, DisplayIndex
         {
+            int count = 1;
             for (int s = 0; s < _uiModulesBinding.Count; s++)
             {
                 var m = _uiModulesBinding[s];
@@ -432,7 +437,8 @@ namespace OJT1_Smart_IO
 
                 for (int ch = 0; ch < m.Channels.Count; ch++)
                 {
-                    m.Channels[ch].DisplayIndex = (s * ModuleManager.ChannelsPerModule) + ch + 1;
+
+                    m.Channels[ch].DisplayIndex = count++;
                 }
             }
         }
@@ -462,17 +468,9 @@ namespace OJT1_Smart_IO
 
             foreach (var ui in _uiModulesBinding)
             {
-                _moduleManager.AddModule(ui.Type);// Di,DO
-                DIEnd = ui.SlotIndex;
+                _moduleManager.AddModule(ui.DIIndex,ui.DOIndex,ui.Type);// Di,DO
             }
-            foreach(var module in _uiModulesBinding)
-            {
-                if (module.Type == ModuleType.DI)
-                {
-                    DIStart = module.SlotIndex;
-                    break;
-                }
-            }
+         
             modules.RefreshData();
             modules.FocusedRowHandle = _moduleManager.Modules.Count > 0 ? 0 : -1;
 
@@ -528,23 +526,24 @@ namespace OJT1_Smart_IO
                 if (m.Channels == null || m.Channels.Count == 0) continue;
 
                 // DIIndex가 1부터 시작한다고 가정 (1,2,3...)
-                int diIndex = m.DIIndex - 1;
-                if (diIndex < 0) continue;
+                //int diIndex = m.DIIndex - 1;
+                //if (diIndex < 0) continue;
 
 
-                int baseOffset = diIndex * 16; // 전 DI의 채널스 값
-                if (baseOffset >= diAll.Length) continue;// 확인차
+                //int baseOffset = diIndex * 16; // 전 DI의 채널스 값
+                //if (baseOffset >= diAll.Length) continue;// 확인차
 
-                int n = Math.Min(16, diAll.Length - baseOffset);
-                if (m.Channels == null || m.Channels.Count == 0) continue;// 확인
+                //int n = Math.Min(16, diAll.Length - baseOffset);
+                //if (m.Channels == null || m.Channels.Count == 0) continue;// 확인
 
-                // m.Channels 개수는 16개라고 가정하지만, 혹시 다르면 Min 처리
-                n = Math.Min(n, m.Channels.Count);
+                //// m.Channels 개수는 16개라고 가정하지만, 혹시 다르면 Min 처리
+                //n = Math.Min(n, m.Channels.Count);
 
-                for (int i = 0; i < n; i++)
-                {
-                    m.Channels[i].Value = diAll[baseOffset + i];
-                }
+                //for (int i = 0; i < n; i++)
+                //{
+                //    m.Channels[i].Value = diAll[baseOffset + i];
+                //}
+            
             }
 
             // 현재 화면에 보이는 오른쪽 채널 그리드 갱신
@@ -657,6 +656,13 @@ namespace OJT1_Smart_IO
             modules.OptionsSelection.EnableAppearanceFocusedCell = false;
         }
 
+        public void addChannels(IOModule m,int ch)
+        {
+            for (int i = 0; i < ch; i++)// 나중에  채널 수 변경
+            {
+                m.Channels.Add(new IOChannel { ChannelIndex = i, DisplayIndex = i + 1, Value = false });// DI,DO 나누어 주기
+            }
+        }
 
     }
 }
