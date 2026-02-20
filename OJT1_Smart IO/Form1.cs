@@ -427,15 +427,21 @@ namespace OJT1_Smart_IO
         private void RecalcUiIndexes() // slotIdex, DisplayIndex
         {
             int count = 1;
+            int DICnt = 1;
             for (int s = 0; s < _uiModulesBinding.Count; s++)
             {
                 var m = _uiModulesBinding[s];
                 m.SlotIndex = s;// 변경 ㄴㄴ
-
                 for (int ch = 0; ch < m.Channels.Count; ch++)
-                {
-                    if (ch == 0) m.HistoryIndex = count;// 2026-02-20 1:50
-                    m.Channels[ch].DisplayIndex = count++;
+                {                    
+                    if (m.Type==ModuleType.DO)
+                    {
+                        if (ch == 0) m.HistoryIndex = count;                       
+                        m.Channels[ch].DisplayIndex = count++;
+                        continue;
+                    }
+                    if (ch == 0) m.HistoryIndex = DICnt;
+                    DICnt++;
                 }
             }
         }
