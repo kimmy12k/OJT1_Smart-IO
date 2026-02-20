@@ -109,6 +109,7 @@ namespace OJT1_Smart_IO
                     BeginInvoke(new Action(() => ApplyDIToSelectedModule(di)));
             };
 
+            gridModules.AllowDrop = true;
             // 오른쪽 비우기
             BindChannels(null);
         }
@@ -135,9 +136,6 @@ namespace OJT1_Smart_IO
             LockModulesGridColumns();
         }
 
-        // ---------------------------
-        // Grid 세팅 (Value=체크박스, Index=DisplayIndex)
-        // ---------------------------
         private void SetupChannelsGrid()
         {
             var repoCheck = repositoryItemCheckEdit1;
@@ -160,7 +158,6 @@ namespace OJT1_Smart_IO
                 colValue.OptionsColumn.ReadOnly = false;
             }
 
-            // DisplayIndex 컬럼
             var colDisp = channels.Columns.ColumnByFieldName("DisplayIndex");
             if (colDisp != null)
             {
@@ -309,7 +306,7 @@ namespace OJT1_Smart_IO
             if (ch == null) return;
             bool newValue = Convert.ToBoolean(e.Value);
             //if(module.DOIndex==0)module.DOIndex = 1;// DO 모듈이 하나도 없을 경우
-            bool ok = _moduleManager.SetOutput(module.SlotIndex, ch.ChannelIndex, newValue);// DO부분 SlotIndex -> DOIndex -1
+            bool ok = _moduleManager.SetOutput(module.SlotIndex, ch.ChannelIndex,module.HistoryIndex, newValue);// DO부분 SlotIndex -> DOIndex -1
             if (!ok)
             {
                 channels.RefreshRow(e.RowHandle);
@@ -334,6 +331,8 @@ namespace OJT1_Smart_IO
             {
                 if (_configLocked) return; // 운전모드면 추가 금지
                 var type = (ModuleType)cmbModuleType.SelectedIndex; // DI=0, DO=1 
+                if (cmbChannelsCount.SelectedIndex < 0)
+                    throw new InvalidOperationException("채널 개수를 선택하세요.");
                 int channelsCount = cmbChannelsCount.SelectedIndex+1;
                 if (type == ModuleType.DI)
                 {
@@ -348,8 +347,6 @@ namespace OJT1_Smart_IO
                 var m = new IOModule
                 {
                     Type = type,
-                    DIIndex = _DI,
-                    DOIndex = _DO,
                     Channels = new System.Collections.Generic.List<IOChannel>()
                 };
                
@@ -437,7 +434,7 @@ namespace OJT1_Smart_IO
 
                 for (int ch = 0; ch < m.Channels.Count; ch++)
                 {
-
+                    if (ch == 0) m.HistoryIndex = count;// 2026-02-20 1:50
                     m.Channels[ch].DisplayIndex = count++;
                 }
             }
@@ -468,7 +465,7 @@ namespace OJT1_Smart_IO
 
             foreach (var ui in _uiModulesBinding)
             {
-                _moduleManager.AddModule(ui.DIIndex,ui.DOIndex,ui.Type);// Di,DO
+                _moduleManager.AddModule(ui);// Di,DO
             }
          
             modules.RefreshData();
@@ -637,11 +634,11 @@ namespace OJT1_Smart_IO
             // (디자이너에서 컬럼을 안 만들어두면 런타임에 생김)
             // modules.PopulateColumns();
 
-            // ✅ 그리드 전체 편집도 막아버리면 가장 안전 (드래그/선택은 가능)
+            //그리드 전체 편집도 막아버리면 가장 안전 (드래그/선택은 가능)
             modules.OptionsBehavior.Editable = false;
             modules.OptionsBehavior.ReadOnly = true;
 
-            // ✅ 특정 컬럼만 확실히 잠금 (SlotIndex, Type)
+            //특정 컬럼만 확실히 잠금 (SlotIndex, Type)
             var colSlot = modules.Columns.ColumnByFieldName("SlotIndex"); // 변경 ㄴㄴ
             if (colSlot != null)
             {
@@ -664,7 +661,7 @@ namespace OJT1_Smart_IO
         {
             for (int i = 0; i < ch; i++)// 나중에  채널 수 변경
             {
-                m.Channels.Add(new IOChannel { ChannelIndex = i, DisplayIndex = i + 1, Value = false });// DI,DO 나누어 주기
+                m.Channels.Add(new IOChannel { ChannelIndex = i, Value = false });// DI,DO 나누어 주기
             }
         }
 

@@ -26,71 +26,54 @@ namespace OJT1_Smart_IO.Managers
             if (Index < 0 || Index >= Modules.Count) return null;// modules.Count-> modules.count- DInum 으로 수정필요
             return Modules[Index];
         }
-        public IOModule AddModule(ModuleType type)
+        public IOModule AddModule(IOModule m)
         {
             if (Modules.Count >= MaxModules)
                 throw new InvalidOperationException($"모듈은 최대 {MaxModules}개까지 추가할 수 있습니다.");
             var module = new IOModule
             {
-                SlotIndex = Modules.Count, // 변경 ㄴㄴ
-                Type = type,
+                SlotIndex = m.SlotIndex,
+                Type = m.Type,
                 Channels = new List<IOChannel>()
             };
-            EnsureChannels(module);
+            EnsureChannels(module,m.Channels.Count);
             Modules.Add(module);
             RecalcDisplayIndexes();
             return module;
         }
-        public IOModule AddModule(int DI, int DO, ModuleType type)
-        {
-            if (Modules.Count >= MaxModules)
-                throw new InvalidOperationException($"모듈은 최대 {MaxModules}개까지 추가할 수 있습니다.");
-            var module = new IOModule
-            {
-                SlotIndex = Modules.Count,// 변경 ㄴㄴ
-                DIIndex = DI,
-                DOIndex = DO,
-                Type = type,
-                Channels = new List<IOChannel>()
-            };
-            EnsureChannels(module);// chennnels 생성
-            Modules.Add(module);
-            RecalcDisplayIndexes(); //  Display Index 
-            return module;
-        }
-        private static void EnsureChannels(IOModule module)
+        private static void EnsureChannels(IOModule module, int ChannelCount)
         {
             if (module.Channels == null) module.Channels = new List<IOChannel>();
             module.Channels.Clear();
-            for (int i = 0; i < ChannelsPerModule; i++)
+            for (int i = 0; i < ChannelCount; i++)
             {
                 module.Channels.Add(new IOChannel
                 {
                     ChannelIndex = i,   // 0~15 (주소용)
-                    DisplayIndex = i + 1, // 임시, Recalc에서 슬롯 포함으로 재계산
                     Value = false
                 });
             }
         }
         private void RecalcDisplayIndexes() // displayIndex
         {
+            int ccount = 0;
             // ✅ 슬롯 기준으로 1~16, 17~32, 33~48 … 만들기
             for (int s = 0; s < Modules.Count; s++)
             {
                 var m = Modules[s];
                 for (int ch = 0; ch < m.Channels.Count; ch++)
                 {
-                    m.Channels[ch].DisplayIndex = (s * ChannelsPerModule) + ch + 1;
+                    m.Channels[ch].DisplayIndex = ccount++;
                 }
             }
         }
-        private ushort MapDoAddress(int Index, int channelIndex)
+        private ushort MapDoAddress(int historyIndex, int channelIndex)
         {
-            return (ushort)(DoBaseAddress + (Index * ChannelsPerModule) + channelIndex);// slotindex 변경 ㄴㄴ ChannelsPerModul 변경
+            return (ushort)(DoBaseAddress + historyIndex + channelIndex);
         }
 
 
-        public bool SetOutput(int Index, int channelIndex, bool value)
+        public bool SetOutput(int Index, int channelIndex, int historyIndex,bool value)
         {
             var module = GetModule(Index);
             if (module == null) return false;
@@ -100,7 +83,7 @@ namespace OJT1_Smart_IO.Managers
 
             try
             {
-                ushort addr = MapDoAddress(Index, channelIndex);
+                ushort addr = MapDoAddress(historyIndex, channelIndex);
 
                 // ✅ 네트워크(실장치) 값 변경
                 _modbus.WriteSingleCoil(SlaveId, addr, value);
