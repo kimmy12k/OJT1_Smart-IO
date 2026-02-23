@@ -71,8 +71,6 @@ namespace OJT1_Smart_IO.Managers
         {
             return (ushort)(DoBaseAddress + historyIndex + channelIndex);
         }
-
-
         public bool SetOutput(int Index, int channelIndex, int historyIndex,bool value)
         {
             var module = GetModule(Index);
@@ -80,15 +78,12 @@ namespace OJT1_Smart_IO.Managers
             if (module.Type != ModuleType.DO) return false;
             if (channelIndex < 0 || channelIndex >= module.Channels.Count) return false;
             if (!_modbus.IsConnected) return false;
-
             try
             {
                 ushort addr = MapDoAddress(historyIndex, channelIndex);
-
-                // ✅ 네트워크(실장치) 값 변경
+                // 네트워크(실장치) 값 변경
                 _modbus.WriteSingleCoil(SlaveId, addr, value);
-
-                // ✅ PC 메모리(바인딩된 객체) 값 변경
+                // PC 메모리(바인딩된 객체) 값 변경
                 module.Channels[channelIndex].Value = value;
                 return true;
             }

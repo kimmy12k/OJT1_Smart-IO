@@ -324,7 +324,7 @@ namespace OJT1_Smart_IO
                 }
                 else
                 {
-                   _DO++;
+                    _DO++;
                     _DOTotalChannels += channelsCount;
                 }
                 var m = new IOModule
@@ -333,13 +333,12 @@ namespace OJT1_Smart_IO
                     Channels = new System.Collections.Generic.List<IOChannel>()
                 };
                
-               addChannels(m, channelsCount);
+                addChannels(m, channelsCount);
                 _uiModulesBinding.Add(m);
                 // 슬롯/표시 인덱스 재계산(중요)
                 RecalcUiIndexes();
                 modules.RefreshData();
                 modules.FocusedRowHandle = _uiModulesBinding.Count - 1;
-
                 // ✅ Apply 전엔 화면만
                 BindChannels(m);
             }
@@ -352,17 +351,14 @@ namespace OJT1_Smart_IO
         private void btnRemoveModule_Click(object sender, EventArgs e)
         {
             if (_configLocked) return;
-
             int idx = modules.FocusedRowHandle;
             if (idx < 0 || idx >= _uiModulesBinding.Count) return;
             var module = GetSelectedModule();
             if (module.Type == ModuleType.DO) _DO--;
             else _DI--;
             _uiModulesBinding.RemoveAt(idx);
-
             RecalcUiIndexes();
             modules.RefreshData();
-
             if (_uiModulesBinding.Count == 0) BindChannels(null);
             else
             {
@@ -374,10 +370,8 @@ namespace OJT1_Smart_IO
         private void btnUp_Click(object sender, EventArgs e)
         {
             if (_configLocked) return;
-
             int from = modules.FocusedRowHandle;
             if (from <= 0) return;
-
             var item = _uiModulesBinding[from];
             _uiModulesBinding.RemoveAt(from);
             _uiModulesBinding.Insert(from - 1, item);
@@ -386,27 +380,19 @@ namespace OJT1_Smart_IO
             modules.FocusedRowHandle = from - 1;
             BindChannels(GetSelectedModule());
         }
-
         private void btnDown_Click(object sender, EventArgs e)
         {
             if (_configLocked) return;
-
             int from = modules.FocusedRowHandle;
             if (from < 0 || from >= _uiModulesBinding.Count - 1) return;
-
             var item = _uiModulesBinding[from];
             _uiModulesBinding.RemoveAt(from);
             _uiModulesBinding.Insert(from + 1, item);
-
             RecalcUiIndexes();
             modules.RefreshData();
             modules.FocusedRowHandle = from + 1;
             BindChannels(GetSelectedModule());
         }
-
-        // ---------------------------
-        // ✅ UI 인덱스 재계산(Apply 전)
-        // ---------------------------
         private void RecalcUiIndexes() // slotIdex, DisplayIndex
         {
             int count = 1;
@@ -419,19 +405,15 @@ namespace OJT1_Smart_IO
                 {                    
                     if (m.Type==ModuleType.DO)
                     {
-                        if (ch == 0) m.HistoryIndex = count;                       
+                        if (ch == 0) m.HistoryIndex = count-1;                       
                         m.Channels[ch].DisplayIndex = count++;
                         continue;
                     }
-                    if (ch == 0) m.HistoryIndex = DICount;
+                    if (ch == 0) m.HistoryIndex = DICount-1;
                     DICount++;
                 }
             }
         }
-
-        // ---------------------------
-        // ✅ Apply 버튼: Apply -> 맵핑 / Unlock -> Disconnect + 초기화
-        // ---------------------------
         private void btnApplyConfig_Click(object sender, EventArgs e)
         {
             if (!_configLocked)
@@ -439,73 +421,50 @@ namespace OJT1_Smart_IO
                 // 설정모드 -> 운전모드
                 ApplyUiToRuntimeMapping();
                 SetConfigLocked(true);
-
             }
             else
             {
                 SetConfigLocked(false);
             }
         }
-
         private void ApplyUiToRuntimeMapping()
         {
             // ✅ 런타임 모듈 새로 구성 (UI 리스트를 기준으로)
             _moduleManager.ClearModules();
-
             foreach (var ui in _uiModulesBinding)
             {
                 _moduleManager.AddModule(ui);// Di,DO
             }
-         
             modules.RefreshData();
             modules.FocusedRowHandle = _moduleManager.Modules.Count > 0 ? 0 : -1;
-
             BindChannels(GetSelectedModule());
         }
-
-        // ---------------------------
-        // ✅ 설정 잠금/해제 UI
-        // ---------------------------
         private void SetConfigLocked(bool locked)
         {
             _configLocked = locked;
-
             // 모듈 편집 잠금/해제
             cmbModuleType.Enabled = !locked;
             btnAddModule.Enabled = !locked;
             btnRemoveModule.Enabled = !locked;
             btnUp.Enabled = !locked;
             btnDown.Enabled = !locked;
-
             // ✅ DI Polling Interval은 Apply 전(설정모드)에서만 변경 가능
             spinPollMs.Enabled = !locked;
-
             // 채널은 Apply(운전모드)일 때만 활성
             gridChannels.Enabled = locked;
-
             // 버튼 텍스트
             btnApplyConfig.Text = locked ? "Unlock Settings" : "Apply Settings";
-
             btnConnect.Enabled = locked;
             btnDisconnect.Enabled = locked;
             TcpEditTime.Enabled = locked;
-
             // 선택 모듈 기준으로 DI/DO 편집 가능/불가 재적용
             //BindChannels(GetSelectedModule());
         }
-
-        // ---------------------------
-        // ✅ DI 값이 들어오면, 선택된 DI 모듈에만 반영
-        // ---------------------------
-
-
         private void ApplyDIToSelectedModule(bool[] diAll)
         {
             int cnt = 0;
             if (diAll == null || diAll.Length == 0) return;
-
-           var list = _moduleManager.Modules;
-                
+            var list = _moduleManager.Modules;
             foreach (var m in list)
             {
                 if (m == null) continue;
@@ -516,40 +475,28 @@ namespace OJT1_Smart_IO
                     m.Channels[i].Value = diAll[cnt++];
                 }
             }
-
             // 현재 화면에 보이는 오른쪽 채널 그리드 갱신
             channels.RefreshData();
         }
-
-
-
-        // ---------------------------
-        // Drag & Drop (Apply 전 UI 순서만 변경)
-        // ---------------------------
         private void modules_MouseDown(object sender, MouseEventArgs e)
         {
             if (_configLocked) return;
-
             var hit = modules.CalcHitInfo(e.Location);
             if (!hit.InRow && !hit.InRowCell) { _dragRowHandle = -1; return; }
-
             _dragRowHandle = hit.RowHandle;
             _isDragging = false;
         }
-
         private void modules_MouseMove(object sender, MouseEventArgs e)
         {
             if (_configLocked) return;
             if (e.Button != MouseButtons.Left) return;
             if (_dragRowHandle < 0) return;
-
             if (!_isDragging)
             {
                 _isDragging = true;
                 gridModules.DoDragDrop(_dragRowHandle, DragDropEffects.Move);
             }
         }
-
         private void gridModules_DragOver(object sender, DragEventArgs e)
         {
             if (_configLocked)
@@ -574,7 +521,6 @@ namespace OJT1_Smart_IO
             var hit = modules.CalcHitInfo(pt);
             int toHandle = hit.RowHandle;
             if (toHandle < 0) return;
-
             // ✅ RowHandle -> DataSource index로 변환 (핵심)
             int fromIndex = modules.GetDataSourceRowIndex(fromHandle);
             int toIndex = modules.GetDataSourceRowIndex(toHandle);
@@ -596,7 +542,6 @@ namespace OJT1_Smart_IO
             //그리드 전체 편집도 막아버리면 가장 안전 (드래그/선택은 가능)
             modules.OptionsBehavior.Editable = false;
             modules.OptionsBehavior.ReadOnly = true;
-
             //특정 컬럼만 확실히 잠금 (SlotIndex, Type)
             var colSlot = modules.Columns.ColumnByFieldName("SlotIndex"); // 변경 ㄴㄴ
             if (colSlot != null)
@@ -604,18 +549,15 @@ namespace OJT1_Smart_IO
                 colSlot.OptionsColumn.AllowEdit = false;
                 colSlot.OptionsColumn.ReadOnly = true;
             }
-
             var colType = modules.Columns.ColumnByFieldName("Type");
             if (colType != null)
             {
                 colType.OptionsColumn.AllowEdit = false;
                 colType.OptionsColumn.ReadOnly = true;
             }
-
             // (선택) 클릭해도 셀 편집 모드로 안 들어가게
             modules.OptionsSelection.EnableAppearanceFocusedCell = false;
         }
-
         public void addChannels(IOModule m,int ch)
         {
             for (int i = 0; i < ch; i++)// 나중에  채널 수 변경
@@ -623,7 +565,6 @@ namespace OJT1_Smart_IO
                 m.Channels.Add(new IOChannel { ChannelIndex = i, Value = false });// DI,DO 나누어 주기
             }
         }
-
     }
 }
 
