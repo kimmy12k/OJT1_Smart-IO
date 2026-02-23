@@ -1,4 +1,5 @@
-﻿using DevExpress.XtraEditors;
+﻿using DevExpress.CodeParser;
+using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Repository;
 using NModbus;
 using OJT1_Smart_IO.Managers;
@@ -191,10 +192,8 @@ namespace OJT1_Smart_IO
                 lblMode.Visible = false;
                 return;
             }
-
             _channelsBinding = new BindingList<IOChannel>(module.Channels);
             gridChannels.DataSource = _channelsBinding;
-
             bool isDI = module.Type == ModuleType.DI;
             lblMode.Visible = isDI;
 
@@ -298,7 +297,6 @@ namespace OJT1_Smart_IO
             ch.Value = newValue;
             channels.RefreshRow(e.RowHandle);
         }
-
         // ---------------------------
         // Add / Remove / Up / Down / Combo
         // (✅ Apply 전에는 UI 리스트만 수정)
@@ -307,7 +305,6 @@ namespace OJT1_Smart_IO
         {
             // DI/DO 선택만, Add 버튼에서 읽어서 생성
         }
-
         private void btnAddModule_Click(object sender, EventArgs e)
         {
             try
@@ -317,21 +314,22 @@ namespace OJT1_Smart_IO
                 if (cmbChannelsCount.SelectedIndex < 0)
                     throw new InvalidOperationException("채널 개수를 선택하세요.");
                 int channelsCount = cmbChannelsCount.SelectedIndex+1;
+                
                 if (type == ModuleType.DI)
                 {
-                    _DI++;
+                  //  _DI++;
                     _DITotalChannels += channelsCount;
                 }
                 else
                 {
-                    _DO++;
+                   // _DO++;
                     _DOTotalChannels += channelsCount;
                 }
                 var m = new IOModule
                 {
                     Type = type,
                     Channels = new System.Collections.Generic.List<IOChannel>()
-                };
+                }; 
                
                 addChannels(m, channelsCount);
                 _uiModulesBinding.Add(m);
@@ -411,7 +409,6 @@ namespace OJT1_Smart_IO
                     }
                     if (ch == 0) m.HistoryIndex = DICount-1;
                     m.Channels[ch].DisplayIndex = DICount++;
-
                 }
             }
         }
@@ -565,6 +562,7 @@ namespace OJT1_Smart_IO
             {
                 m.Channels.Add(new IOChannel { ChannelIndex = i, Value = false });// DI,DO 나누어 주기
             }
+           
         }
     }
 }

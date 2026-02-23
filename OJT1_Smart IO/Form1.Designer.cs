@@ -59,6 +59,7 @@
             gridModules = new DevExpress.XtraGrid.GridControl();
             modules = new DevExpress.XtraGrid.Views.Grid.GridView();
             Index = new DevExpress.XtraGrid.Columns.GridColumn();
+            gridcolumnsChannelCount = new DevExpress.XtraGrid.Columns.GridColumn();
             Type = new DevExpress.XtraGrid.Columns.GridColumn();
             gridView3 = new DevExpress.XtraGrid.Views.Grid.GridView();
             pnlconn = new DevExpress.XtraEditors.PanelControl();
@@ -338,7 +339,7 @@
             // 
             // modules
             // 
-            modules.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { Index, Type });
+            modules.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] { Index, gridcolumnsChannelCount, Type });
             modules.DetailHeight = 375;
             modules.GridControl = gridModules;
             modules.Name = "modules";
@@ -357,6 +358,14 @@
             Index.Visible = true;
             Index.VisibleIndex = 0;
             // 
+            // gridcolumnsChannelCount
+            // 
+            gridcolumnsChannelCount.Caption = "channelsCount";
+            gridcolumnsChannelCount.FieldName = "ChannelsCount";
+            gridcolumnsChannelCount.Name = "gridcolumnsChannelCount";
+            gridcolumnsChannelCount.Visible = true;
+            gridcolumnsChannelCount.VisibleIndex = 1;
+            // 
             // Type
             // 
             Type.AppearanceCell.Options.UseTextOptions = true;
@@ -365,7 +374,7 @@
             Type.FieldName = "Type";
             Type.Name = "Type";
             Type.Visible = true;
-            Type.VisibleIndex = 1;
+            Type.VisibleIndex = 2;
             // 
             // gridView3
             // 
@@ -600,6 +609,7 @@
         private DevExpress.XtraEditors.LabelControl labelControl2;
         private DevExpress.XtraEditors.ComboBoxEdit cmbChannelsCount;
         private DevExpress.XtraEditors.ComboBoxEdit cmbModuleType;
+        private DevExpress.XtraGrid.Columns.GridColumn gridcolumnsChannelCount;
     }
 }
 

@@ -90,7 +90,6 @@ namespace OJT1_Smart_IO.Services
                         await Task.Delay(PollIntervalMs, token);
                         continue;
                     }
-
                     if (TestMode)//실제 통신 없이 랜덤 값 생성,생성된 값이 바로 이벤트로 UI에 전달됨
                     {
                         DIUpdated?.Invoke(FakeDI((int)DiCount));
