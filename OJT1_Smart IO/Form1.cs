@@ -410,7 +410,8 @@ namespace OJT1_Smart_IO
                         continue;
                     }
                     if (ch == 0) m.HistoryIndex = DICount-1;
-                    DICount++;
+                    m.Channels[ch].DisplayIndex = DICount++;
+
                 }
             }
         }
