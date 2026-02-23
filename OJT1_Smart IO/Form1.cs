@@ -17,18 +17,13 @@ namespace OJT1_Smart_IO
     {
         private readonly ModbusTcpService _modbus;
         private readonly ModuleManager _moduleManager;
-
-        // ✅ Apply 전(설정모드) UI 편집용 리스트
+        //  Apply 전(설정모드) UI 편집용 리스트
         private readonly BindingList<IOModule> _uiModulesBinding = new BindingList<IOModule>();
-
-        // ✅ Channels 바인딩
+        //  Channels 바인딩
         private BindingList<IOChannel> _channelsBinding = new BindingList<IOChannel>();
-
         private const int DefaultPort = 502;
         private const byte DefaultUnitId = 1;
-
         private readonly SmartIOService _smart;
-
         private bool _disconnectNotified = false;
         private bool _configLocked = false; // false=설정모드(UI편집), true=운전모드(Apply됨)
 
@@ -40,7 +35,7 @@ namespace OJT1_Smart_IO
         private int _DI = -1;
         private int _DO = 1;
         private int _DITotalChannels = 0;
-        private int _DOTotoalChannels = 0;
+        private int _DOTotalChannels = 0;
 
         public Form1()
         {
@@ -58,45 +53,36 @@ namespace OJT1_Smart_IO
             // ✅ 처음엔 UI 편집용 리스트를 보여줌
             gridModules.DataSource = _uiModulesBinding;
             gridChannels.DataSource = _channelsBinding;
-
             // ---- 기본 UI ----
             txtIp.Text = "192.168.0.132";
             spinPollMs.Value = 500;
-
             // TCP 통신 시간 설정
             TcpEditTime.EditValue = 2000; // 2초
             TcpEditTime.Properties.MinValue = 200;
             TcpEditTime.Properties.MaxValue = 10000; // 10초
             TcpEditTime.Properties.Increment = 100; // 100ms
             TcpEditTime.Properties.IsFloatValue = false;
-
             _modbus.TimeoutMs = (int)TcpEditTime.Value;
-
             // DI 기능을 위한 smartIOService 설정 초기화
             _smart = new SmartIOService(_modbus);
-
             // 연결 상태 UI
             _smart.ConnectionChanged += connected =>
             {
                 if (!IsHandleCreated) return;
-
                 BeginInvoke(new Action(() =>
                 {
                     lblConn.Text = connected ? "Connected" : "Disconnected";
                     if (connected) _disconnectNotified = false;
                 }));
             };
-
             // 에러 표시
             _smart.ErrorOccurred += msg =>
             {
                 if (!IsHandleCreated) return;
-
                 BeginInvoke(new Action(() =>
                 {
                     if (_disconnectNotified) return;
                     _disconnectNotified = true;
-
                     lblConn.Text = "Disconnected";
                     MessageBox.Show("연결이 끊겼습니다.\n" + msg);
                 }));
@@ -108,12 +94,10 @@ namespace OJT1_Smart_IO
                 if (IsHandleCreated)
                     BeginInvoke(new Action(() => ApplyDIToSelectedModule(di)));
             };
-
             gridModules.AllowDrop = true;
             // 오른쪽 비우기
             BindChannels(null);
         }
-
         private void Form1_Load(object sender, EventArgs e)
         {
             SetupChannelsGrid();
@@ -135,7 +119,6 @@ namespace OJT1_Smart_IO
             SetConfigLocked(false);
             LockModulesGridColumns();
         }
-
         private void SetupChannelsGrid()
         {
             var repoCheck = repositoryItemCheckEdit1;
@@ -240,7 +223,7 @@ namespace OJT1_Smart_IO
                 _modbus.TimeoutMs = (int)TcpEditTime.Value;     // 통신 타임아웃
                 _smart.PollIntervalMs = (int)spinPollMs.Value;  // 폴링 주기
                 _smart.DiStart = 0; // 항상 첫번째 
-                _smart.DiCount = (ushort)(_DOTotoalChannels); // DI 읽기 주소 -> DiChannels
+                _smart.DiCount = (ushort)(_DITotalChannels); // DI 읽기 주소 -> DiChannels
                 if (_DI > 0)
                 {
                     _smart.EnableDIPolling = true;
@@ -342,7 +325,7 @@ namespace OJT1_Smart_IO
                 else
                 {
                    _DO++;
-                    _DOTotoalChannels += channelsCount;
+                    _DOTotalChannels += channelsCount;
                 }
                 var m = new IOModule
                 {
@@ -427,7 +410,7 @@ namespace OJT1_Smart_IO
         private void RecalcUiIndexes() // slotIdex, DisplayIndex
         {
             int count = 1;
-            int DICnt = 1;
+            int DICount = 1;
             for (int s = 0; s < _uiModulesBinding.Count; s++)
             {
                 var m = _uiModulesBinding[s];
@@ -440,8 +423,8 @@ namespace OJT1_Smart_IO
                         m.Channels[ch].DisplayIndex = count++;
                         continue;
                     }
-                    if (ch == 0) m.HistoryIndex = DICnt;
-                    DICnt++;
+                    if (ch == 0) m.HistoryIndex = DICount;
+                    DICount++;
                 }
             }
         }
@@ -528,25 +511,6 @@ namespace OJT1_Smart_IO
                 if (m == null) continue;
                 if (m.Type != ModuleType.DI) continue;
                 if (m.Channels == null || m.Channels.Count == 0) continue;
-
-                // DIIndex가 1부터 시작한다고 가정 (1,2,3...)
-                //int diIndex = m.DIIndex - 1;
-                //if (diIndex < 0) continue;
-
-
-                //int baseOffset = diIndex * 16; // 전 DI의 채널스 값
-                //if (baseOffset >= diAll.Length) continue;// 확인차
-
-                //int n = Math.Min(16, diAll.Length - baseOffset);
-                //if (m.Channels == null || m.Channels.Count == 0) continue;// 확인
-
-                //// m.Channels 개수는 16개라고 가정하지만, 혹시 다르면 Min 처리
-                //n = Math.Min(n, m.Channels.Count);
-
-                //for (int i = 0; i < n; i++)
-                //{
-                //    m.Channels[i].Value = diAll[baseOffset + i];
-                //}
                 for (int i = 0; i < m.Channels.Count; i++)
                 {
                     m.Channels[i].Value = diAll[cnt++];
@@ -593,24 +557,19 @@ namespace OJT1_Smart_IO
                 e.Effect = DragDropEffects.None;
                 return;
             }
-
             if (!e.Data.GetDataPresent(typeof(int)))
             {
                 e.Effect = DragDropEffects.None;
                 return;
             }
-
             e.Effect = DragDropEffects.Move;
         }
-
         private void gridModules_DragDrop(object sender, DragEventArgs e)
         {
             if (_configLocked) return;
             if (!e.Data.GetDataPresent(typeof(int))) return;
-
             int fromHandle = (int)e.Data.GetData(typeof(int));
             if (fromHandle < 0) return;
-
             var pt = gridModules.PointToClient(new System.Drawing.Point(e.X, e.Y));
             var hit = modules.CalcHitInfo(pt);
             int toHandle = hit.RowHandle;
@@ -619,10 +578,8 @@ namespace OJT1_Smart_IO
             // ✅ RowHandle -> DataSource index로 변환 (핵심)
             int fromIndex = modules.GetDataSourceRowIndex(fromHandle);
             int toIndex = modules.GetDataSourceRowIndex(toHandle);
-
             if (fromIndex < 0 || toIndex < 0) return;
             if (fromIndex == toIndex) return;
-
             var item = _uiModulesBinding[fromIndex];
             _uiModulesBinding.RemoveAt(fromIndex);
 
@@ -636,10 +593,6 @@ namespace OJT1_Smart_IO
         }
         private void LockModulesGridColumns()
         {
-            // 자동 컬럼 생성형이면 이게 필요할 때가 있음
-            // (디자이너에서 컬럼을 안 만들어두면 런타임에 생김)
-            // modules.PopulateColumns();
-
             //그리드 전체 편집도 막아버리면 가장 안전 (드래그/선택은 가능)
             modules.OptionsBehavior.Editable = false;
             modules.OptionsBehavior.ReadOnly = true;
